@@ -2,25 +2,148 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.projek.keuangan;
+package Model;
 
 /**
  *
  * @author dira
  */
-public class Transaksi {
-    private String keterangan;
-    private double nominal;
-    private String jenis; // Pemasukan atau Pengeluaran
+import Model.Transaksi;
+import koneksi.config;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+import koneksi.config;
 
-    public Transaksi(String keterangan, double nominal, String jenis) {
-        this.keterangan = keterangan;
-        this.nominal = nominal;
+public class Transaksi {
+    private int transaksiId;
+    private int userId;
+    private Date tanggal;
+    private String jenis;
+    private String event;
+    private double jumlah;
+    private String deskripsi;
+
+    // Constructor lengkap
+    public Transaksi(int transaksiId, int userId, Date tanggal, String jenis, String event, double jumlah, String deskripsi) {
+        this.userId = userId;
+        this.tanggal = tanggal;
         this.jenis = jenis;
+        this.event = event;
+        this.jumlah = jumlah;
+        this.deskripsi = deskripsi;
     }
 
-    // Getter
-    public String getKeterangan() { return keterangan; }
-    public double getNominal() { return nominal; }
+    // Constructor tanpa ID (untuk insert baru)
+    public Transaksi(int userId, Date tanggal, String jenis, String event, double jumlah, String deskripsi) {
+        this.userId = userId;
+        this.tanggal = tanggal;
+        this.jenis = jenis;
+        this.event = event;
+        this.jumlah = jumlah;
+        this.deskripsi = deskripsi;
+    }
+    
+    public Transaksi(int transaksiId, Date tanggal, String jenis, String event, double jumlah, String deskripsi, int userId) {
+        this.transaksiId = transaksiId;
+        this.tanggal = tanggal;
+        this.jenis = jenis;
+        this.event = event;
+        this.jumlah = jumlah;
+        this.deskripsi = deskripsi;
+        this.userId = userId;
+    }
+
+
+    // Getter & Setter
+    public int getTransaksiId() { return transaksiId; }
+    public void setTransaksiId(int transaksiId) { this.transaksiId = transaksiId; }
+
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
+
+    public Date getTanggal() { return tanggal; }
+    public void setTanggal(Date tanggal) { this.tanggal = tanggal; }
+
     public String getJenis() { return jenis; }
+    public void setJenis(String jenis) { this.jenis = jenis; }
+    
+    public String getEvent() { return event; }
+    public void setEvent(String event) { this.event = event; }
+
+    public double getJumlah() { return jumlah; }
+    public void setJumlah(double jumlah) { this.jumlah = jumlah; }
+
+    public String getDeskripsi() { return deskripsi; }
+    public void setDeskripsi(String deskripsi) { this.deskripsi = deskripsi; }
+
+    // SQL methods langsung di Model
+    public static void loadData(DefaultTableModel model) {
+        model.setRowCount(0);
+        try (Connection conn = config.getConnection();
+             Statement st = conn.createStatement()) {
+            ResultSet rs = st.executeQuery("SELECT * FROM transaksi ORDER BY transaksi_id DESC");
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getInt("transaksi_id"),
+                    rs.getDate("tanggal"),
+                    rs.getString("jenis"),
+                    rs.getString("event"),
+                    rs.getDouble("jumlah"),
+                    rs.getString("deskripsi")
+                });
+            }
+        } catch (Exception e) {
+            System.out.println("Gagal memuat data: " + e.getMessage());
+        }
+    }
+
+    public boolean insert() {
+        try (Connection conn = config.getConnection()) {
+            String sql = "INSERT INTO transaksi (user_id, tanggal, jenis, event, jumlah, deskripsi) VALUES (?,?,?,?,?,?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.setDate(2, tanggal);
+            ps.setString(3, jenis);
+            ps.setString(4, event);
+            ps.setDouble(5, jumlah);
+            ps.setString(6, deskripsi);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Gagal tambah transaksi: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean update() {
+        try (Connection conn = config.getConnection()) {
+            String sql = "UPDATE transaksi SET user_id=?, tanggal=?, jenis=?, event=?, jumlah=?, deskripsi=? WHERE transaksi_id=?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.setDate(2, tanggal);
+            ps.setString(3, jenis);
+            ps.setString(4, event);
+            ps.setDouble(5, jumlah);
+            ps.setString(6, deskripsi);
+            ps.setInt(7, transaksiId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Gagal edit transaksi: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static double hitungSaldo() {
+        double saldo = 0;
+        try (Connection conn = config.getConnection();
+             Statement st = conn.createStatement()) {
+            ResultSet rsIn = st.executeQuery("SELECT SUM(jumlah) AS total FROM transaksi WHERE jenis='Pemasukan'");
+            if (rsIn.next()) saldo += rsIn.getDouble("total");
+
+            ResultSet rsOut = st.executeQuery("SELECT SUM(jumlah) AS total FROM transaksi WHERE jenis='Pengeluaran'");
+            if (rsOut.next()) saldo -= rsOut.getDouble("total");
+        } catch (Exception e) {
+            System.out.println("Gagal hitung saldo: " + e.getMessage());
+        }
+        return saldo;
+    }
 }
