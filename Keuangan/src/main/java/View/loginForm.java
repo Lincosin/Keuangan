@@ -127,7 +127,7 @@ public class loginForm extends javax.swing.JFrame {
 
             JOptionPane.showMessageDialog(this, "Login berhasil! Selamat datang " + Session.username);
 
-            new View.dashboardForm().setVisible(true); 
+            new View.dashForm().setVisible(true); 
             this.dispose();
         } else { 
             JOptionPane.showMessageDialog(this, "Login gagal! Username/Password salah."); 

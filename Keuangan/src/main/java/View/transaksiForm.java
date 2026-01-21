@@ -407,7 +407,7 @@ public class transaksiForm extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        new View.dashboardForm().setVisible(true);
+        new View.dashForm().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
    
