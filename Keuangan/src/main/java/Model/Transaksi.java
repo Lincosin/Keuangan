@@ -15,23 +15,13 @@ import javax.swing.table.DefaultTableModel;
 import koneksi.config;
 
 public class Transaksi {
-    private int transaksiId;
-    private int userId;
-    private Date tanggal;
-    private String jenis;
-    private String event;
-    private double jumlah;
-    private String deskripsi;
-
-    // Constructor lengkap
-    public Transaksi(int transaksiId, int userId, Date tanggal, String jenis, String event, double jumlah, String deskripsi) {
-        this.userId = userId;
-        this.tanggal = tanggal;
-        this.jenis = jenis;
-        this.event = event;
-        this.jumlah = jumlah;
-        this.deskripsi = deskripsi;
-    }
+    public int transaksiId;
+    public int userId;
+    public Date tanggal;
+    public String jenis;
+    public String event;
+    public double jumlah;
+    public String deskripsi;
 
     // Constructor tanpa ID (untuk insert baru)
     public Transaksi(int userId, Date tanggal, String jenis, String event, double jumlah, String deskripsi) {
@@ -43,6 +33,7 @@ public class Transaksi {
         this.deskripsi = deskripsi;
     }
     
+    //constructor untuk edit
     public Transaksi(int transaksiId, Date tanggal, String jenis, String event, double jumlah, String deskripsi, int userId) {
         this.transaksiId = transaksiId;
         this.tanggal = tanggal;
@@ -53,30 +44,6 @@ public class Transaksi {
         this.userId = userId;
     }
 
-
-    // Getter & Setter
-    public int getTransaksiId() { return transaksiId; }
-    public void setTransaksiId(int transaksiId) { this.transaksiId = transaksiId; }
-
-    public int getUserId() { return userId; }
-    public void setUserId(int userId) { this.userId = userId; }
-
-    public Date getTanggal() { return tanggal; }
-    public void setTanggal(Date tanggal) { this.tanggal = tanggal; }
-
-    public String getJenis() { return jenis; }
-    public void setJenis(String jenis) { this.jenis = jenis; }
-    
-    public String getEvent() { return event; }
-    public void setEvent(String event) { this.event = event; }
-
-    public double getJumlah() { return jumlah; }
-    public void setJumlah(double jumlah) { this.jumlah = jumlah; }
-
-    public String getDeskripsi() { return deskripsi; }
-    public void setDeskripsi(String deskripsi) { this.deskripsi = deskripsi; }
-
-    // SQL methods langsung di Model
     public static void loadData(DefaultTableModel model) {
         model.setRowCount(0);
         try (Connection conn = config.getConnection();
